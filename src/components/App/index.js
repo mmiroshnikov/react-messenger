@@ -1,27 +1,27 @@
 import React, { Fragment, useEffect, useState, useContext } from "react";
 import {
   BrowserRouter as Router,
-  Switch,
+  Routes,
   Route,
   Link,
   useRouteMatch,
   useParams,
-  Redirect,
+  Redirect
 } from "react-router-dom";
+import { Provider } from "../context";
 // import firebase from 'firebase';
 // import { auth, initializeApp, storage } from 'firebase';
-import styled, { css } from "styled-components";
+// import styled, { css } from "styled-components";
+
 import Messenger from "../Messenger";
-import FirebaseSvc from "../FirebaseSvc";
-import { Login } from "../Login/Login";
-import { Provider } from "../context";
+// import firebaseSvc from '../FirebaseSvc';
+import { Login } from '../Login/Login';
+
 
 export default function App() {
-  return (
-    <div className="App">
+  return (<div className="App">
       <Provider>
         <Router>
-          <Switch>
             <Route
               exact
               path="/clear"
@@ -45,7 +45,7 @@ export default function App() {
                 return <Login />;
               }}
             />
-          </Switch>
+
         </Router>
       </Provider>
     </div>

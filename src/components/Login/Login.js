@@ -11,7 +11,7 @@ import firebaseSvc from "../FirebaseSvc";
 // import { auth, initializeApp, storage } from 'firebase';
 // import uuid from 'uuid';
 
-import { Context } from "../context";
+import { Context } from '../context';
 
 const LoginInner = ({history}) => {
 
