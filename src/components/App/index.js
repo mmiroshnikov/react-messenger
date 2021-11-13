@@ -46,6 +46,17 @@ export default function App() {
               }}
             />
 
+            <Route
+              exact path="/"
+              render={(props) =>
+                {
+                  return(
+                <>
+                  <Redirect to="/login" />
+                </>
+              )}}
+            />
+
         </Router>
       </Provider>
     </div>
