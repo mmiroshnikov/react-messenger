@@ -22,6 +22,14 @@ const LoginInner = ({history}) => {
   // };
 
 
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState(context.user.email)
+  const [password, setPassword] = useState('123123')
+  const [avatar, setAvatar] = useState('')
+
+
+
+
   const [state, setState] = useState({
     name: "Alex B",
     email: "mikoza@gmail.com",
@@ -33,10 +41,10 @@ const LoginInner = ({history}) => {
   const onPressLogin = async () => {
     console.log("pressing login... email:" + state.email);
     const user = {
-      name: state.name,
-      email: state.email,
-      password: state.password,
-      avatar: state.avatar,
+      name,
+      email,
+      // avatar,
+      password
     };
 
     const response = firebaseSvc.login(
@@ -49,9 +57,9 @@ const LoginInner = ({history}) => {
   const loginSuccess = () => {
     console.log("login successful, navigate to chat.");
     context.handles.setUserData({
-      name: state.name,
-      email: state.email,
-      avatar: state.avatar,
+      name,
+      email,
+      // avatar,
     })
     history.push('/chat')
     // props.navigation.navigate("Chat", {
@@ -66,8 +74,10 @@ const LoginInner = ({history}) => {
     alert("Login failure. Please tried again.");
   };
 
-  const onChangeTextEmail = (email) => setState({ ...state, email: email });
-  const onChangeTextPassword = (password) => setState({ ...state, password });
+  // const onChangeEmail = (email) => setState({ ...state, email: email });
+  const onChangeEmail = (e) => setEmail(e.target.value);
+  // const onChangePassword = (password) => setState({ ...state, password });
+  const onChangePassword = (e) => setPassword(e.target.value);
 
 
     return (
@@ -79,27 +89,29 @@ const LoginInner = ({history}) => {
         </div>
         <input
           // style={styles.nameInput}
-          placeHolder="test3@gmail.com"
-          onChangeText={onChangeTextEmail}
-          value={state.email}
+          placeHolder="test@gmail.com"
+          onChange={onChangeEmail}
+          value={email}
         />
         <div
         // style={styles.title}
         >
           Password:
         </div>
+
         <input
           // style={styles.nameInput}
-          onChangeText={onChangeTextPassword}
-          value={state.password}
+          onChange={onChangePassword}
+          value={password}
         />
+        <br/><br/>
         <button
           title="Login 2"
           // style={styles.buttonText}
           onClick={onPressLogin}
         >
-          Login 2
-        </button>
+          Login
+        </button><br/><br/>
 
         <button
           title="Go to create new account"
