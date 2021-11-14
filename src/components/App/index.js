@@ -16,6 +16,7 @@ import { Provider } from "../context";
 import Messenger from "../Messenger";
 // import firebaseSvc from '../FirebaseSvc';
 import { Login } from '../Login/Login';
+import { CreateAccount } from '../CreateAccount';
 
 
 export default function App() {
@@ -43,6 +44,13 @@ export default function App() {
               path="/login"
               render={(props) => {
                 return <Login />;
+              }}
+            />
+
+            <Route
+              path="/createaccount"
+              render={(props) => {
+                return <CreateAccount />;
               }}
             />
 
