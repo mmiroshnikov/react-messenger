@@ -30,16 +30,10 @@ const LoginInner = ({history}) => {
 
 
 
-  const [state, setState] = useState({
-    name: "Alex B",
-    email: "mikoza@gmail.com",
-    password: "123123",
-    avatar: "",
-  })
 
   // using Fire.js
   const onPressLogin = async () => {
-    console.log("pressing login... email:" + state.email);
+    // console.log("pressing login... email:" + state.email);
     const user = {
       name,
       email,
@@ -82,6 +76,7 @@ const LoginInner = ({history}) => {
 
     return (
       <>
+        <h1>Login</h1>
         <div
         // style={styles.title}
         >
@@ -117,6 +112,7 @@ const LoginInner = ({history}) => {
           title="Go to create new account"
           // style={styles.buttonText}
           onClick={() => {
+            history.push('/createaccount')
             // props.navigation.navigate("CreateAccount")
           }}
         >
