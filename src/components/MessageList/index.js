@@ -35,6 +35,7 @@ export default function MessageList(props) {
   }
 
   const renderMessages = (messages) => {
+    console.log('messages = ', messages);
     let i = 0;
     let messageCount = messages.length;
     let tempMessages = [];

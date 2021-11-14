@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useState, useContext } from "react";
 import { Link, withRouter } from "react-router-dom";
 import ConversationList from '../ConversationList';
-import {MessageList} from '../Freegaly/MessageList';
-// import MessageList from '../MessageList';
+// import {MessageList} from '../Freegaly/MessageList';
+import MessageList from '../MessageList';
 import './Messenger.css';
 
 import firebaseSvc from '../FirebaseSvc';
