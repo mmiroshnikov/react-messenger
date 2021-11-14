@@ -1,397 +1,150 @@
 import React, { useState, useEffect } from "react";
-// import {
-//   AIRTABLE_APIKEY,
-//   AIRTABLE_BASE,
-// } from "./config";
-// import { data } from './components/data';
-// import { Preloader, Preloader0 } from './uikit/Uikit';
-
-
-
-// const Airtable = require("airtable");
-
-
-
-// Airtable.configure({
-//   endpointUrl: "https://api.airtable.com",
-//   apiKey: AIRTABLE_APIKEY,
-// });
-// const base = Airtable.base(AIRTABLE_BASE);
-
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth"
+import "firebase/compat/firestore"
+import "firebase/compat/database"
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
+// import firebase from 'firebase';
+// import uuid from 'uuid';
+import {v1 as uuid} from "uuid";
+import { config } from './Freegaly/config';
 
 
 
 const Context = React.createContext();
 
 function Provider({ children }) {
-
-
-  // const [items, setItems] = useState([]);
-  // const [items, setItems] = useState(itemsCached);
-
-
-  const [categories, setCategories] = useState([]);
-
-
-  // const [activeProjects, setActiveProjects] = useState([...data.projects.map(onePr => onePr['id'])]);
-  // const [activeProjects, setActiveProjects] = useState(['gs', 'rc', 'ustoy']);
-  const [activeUsers, setActiveUsers] = useState(['danny', 'misha', 'joe']);
-  const [activeProjects, setActiveProjects] = useState(['gs']);
-  const [activeDate, setActiveDate] = useState('10/27/2021');
-
-
   const getLocal = () => {
-    let user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : {
-      email: ''
-    };
+    let user = localStorage.getItem("user");
+    return user
+      ? JSON.parse(user)
+      : {
+          email: "",
+        };
   };
-
-
 
   const [user, setUser] = useState(getLocal());
-
-
-
   const [ready, setReady] = useState(false);
+  const [messages, setMessages] = useState([]);
+
+  // const addMessages = (newMessage) => {
+  //   debugger
+  //   console.log("messages 😘  = ", messages);
+  //   setMessages([...messages, newMessage]);
+  // };
 
 
 
 
+useEffect(() => {
+  if (!firebase.apps.length) {
+    firebase.initializeApp(config);
+  } else {
+    console.log("firebase apps already running...")
+  }
+}, [firebase])
 
-  const saveLocal = (user) => {
-    localStorage.setItem('user', JSON.stringify(user));
+
+const login = async(user, success_callback, failed_callback) => {
+  console.log("logging in 😂");
+  const output = await firebase.auth().signInWithEmailAndPassword(user.email, user.password)
+  .then(success_callback, failed_callback);
+}
+
+
+
+const parse = snapshot => {
+  const { timestamp: numberStamp, text, user } = snapshot.val();
+  const { key: id } = snapshot;
+  const { key: _id } = snapshot; //needed for giftedchat
+  const timestamp = new Date(numberStamp);
+
+  const message = {
+    id,
+    _id,
+    timestamp,
+    text,
+    user,
   };
+  console.log("message ", message)
+  return message;
+};
 
-  const setUserEmail = (email) => {
-    console.log('email = ', email)
-    let userNew = JSON.parse(JSON.stringify(user));
-    userNew = {
-      ...user,
-      email: email
-    }
-    setUser(userNew)
-    saveLocal(userNew)
-  };
+const uid = () => {
+  return (firebase.auth().currentUser || {}).uid;
+}
 
+const ref = () => {
+  return firebase.database().ref('Messages');
+}
 
-
-  const [users, setUsers] = useState([])
-  const [projects, setProjects] = useState([])
-  const [metadata, setMetadata] = useState([])
-  const [videos, setVideos] = useState([])
-  const [metaDataTypes, setMetaDataTypes] = useState([])
-
+const refOn = callback => {
+  firebase.database().ref('Messages').limitToLast(20)
+  .on('child_added', snapshot => callback(
+     parse(snapshot)
+    ));
+}
 
 
-
-  // useEffect(() => {
-  //   if (!users.length) {
-  //     base("Users")
-  //       .select({
-  //         maxRecords: 100,
-  //         // sort: [{ field: "importance", direction: "desc" }],
-  //       })
-  //       .eachPage(function page(partialRecords, fetchNextPage) {
-  //         setUsers([
-  //             ...users,
-  //             ...partialRecords
-  //               .filter(record => record.get("active"))
-  //               .map((record) => ({
-  //                 id: record['id'],
-  //                 uniq: record.get('uniq'),
-  //                 name: record.get('name'),
-  //                 img: record.get('img') ? record.get('img')[0] : {},
-  //                 title: record.get('title'),
-  //                 metadata: record.get('metadata') ? record.get('metadata') : [],
-  //                 videos: record.get('videos') ? record.get('videos') : [],
-  //               })),
-  //           ]);
-  //           // partialRecords.forEach(function(record) {
-  //           //   console.log('Retrieved', partialRecords.get('img_url'));
-  //           // });
-  //           fetchNextPage();
-  //         },
-  //         function done(err) {
-  //           if (err) {
-  //             console.error(err);
-  //             return;
-  //           }
-  //         }
-  //       );
-  //   }
-  // }, [users]);
+useEffect(() => {
+  refOn(message => setMessages(previousState => ([...previousState, message])))
+}, [])
 
 
-  // useEffect(() => {
-  //   if (!projects.length) {
-  //     base("Projects")
-  //       .select({
-  //         maxRecords: 100,
-  //         // sort: [{ field: "importance", direction: "desc" }],
-  //       })
-  //       .eachPage(function page(partialRecords, fetchNextPage) {
-  //         setProjects([
-  //             ...projects,
-  //             ...partialRecords
-  //               .filter(record => record.get("active"))
-  //               .map((record) => ({
-  //                 id: record['id'],
-  //                 uniq: record.get('uniq'),
-  //                 title: record.get('title'),
-  //                 img: record.get('img') ? record.get('img')[0] : {},
-  //                 color: record.get('color'),
-  //                 videos: record.get('videos') ? record.get('videos') : [],
-  //                 user: record.get('user') ? record.get('user')[0] : {},
-  //               })),
-  //           ]);
-  //           // partialRecords.forEach(function(record) {
-  //           //   console.log('Retrieved', partialRecords.get('img_url'));
-  //           // });
-  //           fetchNextPage();
-  //         },
-  //         function done(err) {
-  //           if (err) {
-  //             console.error(err);
-  //             return;
-  //           }
-  //         }
-  //       );
-  //   }
-  // }, [projects]);
+const getMessages = () => {
 
-  // useEffect(() => {
-  //   if (!videos.length) {
-  //     base("Videos")
-  //       .select({
-  //         maxRecords: 100,
-  //         // sort: [{ field: "importance", direction: "desc" }],
-  //       })
-  //       .eachPage(function page(partialRecords, fetchNextPage) {
-  //         setVideos([
-  //             ...videos,
-  //             ...partialRecords
-  //               .filter(record => record.get("active"))
-  //               .map((record) => ({
-  //                 id: record['id'],
-  //                 uniq: record.get('uniq'),
-  //                 url: record.get('url'),
-  //                 img: record.get('img') ? record.get('img')[0] : {},
-  //                 date: record.get('date'),
-  //                 length: record.get('length'),
-  //                 title: record.get('title'),
-  //                 user: record.get('user') ? record.get('user')[0] : {},
-  //                 userImg: record.get('userImg') ? record.get('userImg')[0] : [],
-  //                 metadata: record.get('metadata') ? record.get('metadata') : [],
-  //               })),
-  //           ]);
-  //           // partialRecords.forEach(function(record) {
-  //           //   console.log('Retrieved', partialRecords.get('img_url'));
-  //           // });
-  //           fetchNextPage();
-  //         },
-  //         function done(err) {
-  //           if (err) {
-  //             console.error(err);
-  //             return;
-  //           }
-  //         }
-  //       );
-  //   }
-  // }, [videos]);
+  // refOn(message => (previousState => {
+  //   console.log('previousState =', previousState.messages)ibh_
+  //   setMessages(
+  //   [...previousState.messages, message]
+  //   )}))
 
 
-  // useEffect(() => {
-  //   if (!metadata.length) {
-  //     base("Metadata")
-  //       .select({
-  //         maxRecords: 100,
-  //         view: "DONTCHANGE",
-  //         // sort: [{ field: "importance", direction: "desc" }],
-  //       })
-  //       .eachPage(function page(partialRecords, fetchNextPage) {
-  //         setMetadata([
-  //             ...metadata,
-  //             ...partialRecords
-  //               .filter(record => record.get("active"))
-  //               .map((record) => ({
-  //                 id: record['id'],
-  //                 uniq: record.get('uniq'),
-  //                 author: record.get('author'),
-  //                 metaTime: record.get('metaTime'),
-  //                 shownByDefault: record.get('shownByDefault'),
-
-  //                 type: record.get('type') ? record.get('type')[0] : {},
-  //                 typeRef: record.get('typeRef') ? record.get('typeRef')[0] : {},
-  //                 typeIcon: record.get('typeIcon') ? record.get('typeIcon')[0] : {},
-  //                 typeColor: record.get('typeColor') ? record.get('typeColor')[0] : {},
-  //                 typeTitle: record.get('typeTitle') ? record.get('typeTitle')[0] : {},
+      // context.handles.setMessages(message)
+    // context.handles.setMessages(previousState => ([...context.data.messages, message]))
+    // context.handles.setMessages([...context.data.messages, message])
 
 
-  //                 authorImg: record.get('authorImg') ? record.get('authorImg')[0] : {},
-  //                 authorName: record.get('authorName'),
-  //                 commentText: record.get('commentText'),
-  //                 commentParentId: record.get('commentParentId'),
-  //                 commentParentText: record.get('commentParentText'),
-  //                 videoId: record.get('videoId') ? record.get('videoId')[0] : '',
-  //                 videoThumb: record.get('videoThumb') ? record.get('videoThumb')[0] : {},
-  //               })),
-  //           ]);
-  //           // partialRecords.forEach(function(record) {
-  //           //   console.log('Retrieved', partialRecords.get('img_url'));
-  //           // });
-  //           fetchNextPage();
-  //         },
-  //         function done(err) {
-  //           if (err) {
-  //             console.error(err);
-  //             return;
-  //           }
-  //         }
-  //       );
-  //   }
-  // }, [metadata]);
+  // let mess = firebase.database().ref('Messages');
 
-  // useEffect(() => {
-  //   if (!metaDataTypes.length) {
-  //     base("MetadataTypes")
-  //       .select({
-  //         maxRecords: 100,
-  //         view: 'Grid view',
-  //         // view: "DONTCHANGE",
-  //         sort: [{ field: "importance", direction: "desc" }],
-  //       })
-  //       .eachPage(function page(partialRecords, fetchNextPage) {
-  //         setMetaDataTypes([
-  //             ...metaDataTypes,
-  //             ...partialRecords
-  //             .filter(record => record.get("active"))
-  //             .map((record) => ({
-  //               id: record['id'],
-  //               type: record.get('type'),
-  //               title: record.get('title'),
-  //               icon: record.get('icon'),
-  //               color: record.get('color'),
-  //               emoji: record.get('emoji'),
-  //             })),
-  //           ]);
-  //           fetchNextPage();
-  //         },
-  //         function done(err) {
-  //           if (err) {
-  //             console.error(err);
-  //             return;
-  //           }
-  //         }
-  //       );
-  //   }
-  // }, [metaDataTypes]);
+  // console.log("messages ====", mess)
+
+  // mess.length && mess.map(message =>
+  //   context.handles.setMessages([
+  //     ...context.data.messages,
+  //     firebaseSvc.parse(message)])
+  //   )
 
 
-
-  // useEffect(() => {
-  //   if (
-  //       users.length &&
-  //       videos.length &&
-  //       metadata.length &&
-  //       projects.length &&
-  //       metaDataTypes.length
-  //     ) {
-  //     setReady(true)
-  //   }
-  // }, [
-  //   users,
-  //   videos,
-  //   metadata,
-  //   projects,
-  //   metaDataTypes,
-  // ])
-
-
-
-  // const saveToLocal = (alert) => {
-  //   let data = JSON.stringify({
-  //     stacks: stacks,
-  //   });
-  //   // .replace('value:false,', 'defaultValue:false,')
-  //   // .replace('value:true,', 'defaultValue:true,');
-  //   localStorage.setItem("gs", data);
-  //   if (alert)
-  //     addToast("Saved Successfully", {
-  //       appearance: "success",
-  //       autoDismiss: true,
-  //       autoDismissTimeout: 500,
-  //     });
-  // };
-
-  // const getFromLocal = () => {
-  //   let data = localStorage.getItem("gs");
-  //   return Boolean(data) ? JSON.parse(data) : null;
-  // };
+console.log("messages ====", messages)
+}
 
 
 
 
-  // const getCategoryById = (id, field) => {
-  //   let a = categories.filter((item) => item["id"] === id)[0];
-  //   if (a && field) {a = a[field] ? a[field] : null}
-  //   return a;
-  // };
-
-
-  // const getUserDataById = (userId) => {
-  //   let user = data['users'].filter(oneUser => oneUser['id'] === userId)
-  //   let blankUser = {
-  //     id: '-',
-  //     name: '-',
-  //     title: '-',
-  //     ava: '',
-  //     log: []
-  //   }
-  //   return user.length ? user[0] : blankUser;
-  // };
-
-
-  // const getUsersForProjects = (date, activeProjects = [],) => {
-  //   // activeUsers
-  //   let users = []
-  //   console.log('data[users] = ', data['users']);
-  //   data['users'].forEach(oneUser => {
-  //     if (!activeUsers.includes (oneUser['id'])) return
-  //     // let checkDate = date === oneUser['log']['date'];
-  //     let userLogForDay = oneUser['log'].filter(oneLogEntry => oneLogEntry['date'] === date && activeProjects.includes(oneLogEntry['project']))
-  //     let userFiltered = JSON.parse(JSON.stringify(oneUser));
-  //     userFiltered['log'] = userLogForDay;
-  //     if (userLogForDay.length) users.push(userFiltered)
-  //   })
-  //   return users
-  // }
-
-  const setUserData = (newUser) => setUser(newUser)
-
-
-  const setNewDate = (newDate) => setActiveDate(newDate)
+  const setUserData = (newUser) => setUser(newUser);
 
   return (
     <Context.Provider
       value={{
         ready,
         user: {
-          ...user
+          ...user,
         },
-        state: {
-
-        },
+        state: {},
         data: {
-
+          messages,
         },
         handles: {
-          setUserData
-        }
-
+          login,
+          setUserData,
+          setMessages,
+          refOn,
+          getMessages,
+        },
       }}
     >
-
       {/* {!ready && <Preloader0><Preloader width={120} height={120}/></Preloader0>} */}
       {children}
     </Context.Provider>

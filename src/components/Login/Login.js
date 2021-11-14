@@ -1,5 +1,9 @@
 import React, { Fragment, useEffect, useState, useContext } from "react";
 import { Link, withRouter } from "react-router-dom";
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth"
+import "firebase/compat/firestore"
+import "firebase/compat/database"
 // import { Constants, ImagePicker, Permissions } from 'expo';
 // import {
 //   StyleSheet, Text,
@@ -41,7 +45,12 @@ const LoginInner = ({history}) => {
       password
     };
 
-    const response = firebaseSvc.login(
+    // const response = firebaseSvc.login(
+    //   user,
+    //   loginSuccess,
+    //   loginFailed
+    // );
+    const response = context.handles.login(
       user,
       loginSuccess,
       loginFailed
@@ -55,7 +64,9 @@ const LoginInner = ({history}) => {
       email,
       // avatar,
     })
+    context.handles.getMessages()
     history.push('/chat')
+
     // props.navigation.navigate("Chat", {
     //   name: state.name,
     //   email: state.email,
@@ -63,6 +74,37 @@ const LoginInner = ({history}) => {
     // });
 
   };
+
+
+//   const getMessages = () => {
+//     // context.handles.refOn(message => (previousState => {
+//     //   context.handles.setMessages(
+//     //     [
+//     //     ...previousState.messages, message
+//     //     ])
+//     // }))
+//     context.handles.refOn(message => {
+//       context.handles.setMessages(message)
+//     })
+//         // context.handles.setMessages(message)
+//       // context.handles.setMessages(previousState => ([...context.data.messages, message]))
+//       // context.handles.setMessages([...context.data.messages, message])
+
+
+//     // let mess = firebase.database().ref('Messages');
+
+//     // console.log("messages ====", mess)
+
+//     // mess.length && mess.map(message =>
+//     //   context.handles.setMessages([
+//     //     ...context.data.messages,
+//     //     firebaseSvc.parse(message)])
+//     //   )
+//   console.log("messages ====", context.data.messages)
+// }
+
+
+
   const loginFailed = () => {
     console.log("login failed ***");
     alert("Login failure. Please tried again.");

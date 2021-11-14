@@ -2,9 +2,17 @@ import React, { Fragment, useEffect, useState, useContext } from "react";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth"
 import "firebase/compat/firestore"
+import "firebase/compat/database"
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 // import firebase from 'firebase';
 // import uuid from 'uuid';
 import {v1 as uuid} from "uuid";
+
+
+// var firebase = require('firebase/app');
+// require('firebase/auth');
+// require('firebase/database');
 
 const config = {
   apiKey: "AIzaSyDri86GaYNNRYovO1XEsFi843i305aRTVo",
@@ -17,14 +25,30 @@ const config = {
   measurementId: "G-6QT4PZ49X2"
 }
 
+const app = initializeApp(config);
+const db = getFirestore(app);
+
 class FirebaseSvc {
+
+
   constructor() {
+
     if (!firebase.apps.length) {
       firebase.initializeApp(config);
     } else {
       console.log("firebase apps already running...")
     }
   }
+
+
+  getMessages =  async function getCities(db) {
+    const citiesCol = collection(db, 'cities');
+    const citySnapshot = await getDocs(citiesCol);
+    const cityList = citySnapshot.docs.map(doc => doc.data());
+    return cityList;
+  }
+
+
 
   login = async(user, success_callback, failed_callback) => {
     console.log("logging in");
@@ -139,13 +163,17 @@ class FirebaseSvc {
       text,
       user,
     };
+    console.log("message ", message)
     return message;
   };
 
   refOn = callback => {
     this.ref
       .limitToLast(20)
-      .on('child_added', snapshot => callback(this.parse(snapshot)));
+      .on('child_added',
+      snapshot => callback(this.parse(snapshot)
+
+));
   }
 
   get timestamp() {

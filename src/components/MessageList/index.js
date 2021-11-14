@@ -1,39 +1,45 @@
-import React, {useEffect, useState} from 'react';
+import React, { Fragment, useEffect, useState, useContext } from "react";
 import Compose from '../Compose';
 import Toolbar from '../Toolbar';
 import ToolbarButton from '../ToolbarButton';
 import Message from '../Message';
 import moment from 'moment';
-
+import { Context } from '../context';
 import './MessageList.css';
 
 const MY_USER_ID = 'apple';
 
 export default function MessageList(props) {
+  const context = useContext(Context);
+
   const [messages, setMessages] = useState([])
 
   useEffect(() => {
-    getMessages();
+    // getMessages();
+    // setMessages(context.data.messages)
   },[])
 
 
   const getMessages = () => {
-     var tempMessages = [
-        {
-          id: 1,
-          author: 'apple',
-          message: 'Hello world! This is a long message that will hopefully get wrapped by our message bubble component! We will see how well it works.',
-          timestamp: new Date().getTime()
-        },
+    //  var tempMessages = [
+    //     {
+    //       id: 1,
+    //       author: 'apple',
+    //       message: 'Hello world! This is a long message that will hopefully get wrapped by our message bubble component! We will see how well it works.',
+    //       timestamp: new Date().getTime()
+    //     },
 
-      ]
-      setMessages([...messages, ...tempMessages])
+    //   ]
+      // setMessages([...messages, ...tempMessages])
+      // setMessages(context.data.messages)
   }
 
-  const renderMessages = () => {
+  const renderMessages = (messages) => {
     let i = 0;
     let messageCount = messages.length;
     let tempMessages = [];
+
+    // debugger
 
     while (i < messageCount) {
       let previous = messages[i - 1];
@@ -100,7 +106,7 @@ export default function MessageList(props) {
           ]}
         />
 
-        <div className="message-list-container">{renderMessages()}</div>
+        {Boolean(context.data.messages.length) && <div className="message-list-container">{renderMessages(context.data.messages)}</div>}
 
         <Compose rightItems={[
           <ToolbarButton key="photo" icon="ion-ios-camera" />,
